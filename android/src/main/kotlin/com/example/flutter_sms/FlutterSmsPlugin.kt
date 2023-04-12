@@ -53,6 +53,7 @@ class FlutterSmsPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent): Boolean { 
+		this.result!.success("CHECK") 
     if (requestCode == REQUEST_CODE_SEND_SMS && this.result != null) { 
       this.result!.success("sent") 
       this.result = null 
