@@ -79,6 +79,7 @@ class FlutterSmsPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       val inst = FlutterSmsPlugin()
       inst.activity = registrar.activity()
       inst.setupCallbackChannels(registrar.messenger())
+			registrar.addActivityResultListener(inst)
     }
   }
 
