@@ -157,7 +157,7 @@ class FlutterSmsPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     intent.putExtra("sms_body", message)
     intent.putExtra(Intent.EXTRA_TEXT, message)
 		this.result = result
-		resultLauncher.launch(intent)
+		//resultLauncher.launch(intent)
     // activity?.startActivityForResult(intent, REQUEST_CODE_SEND_SMS)
   }
 }
