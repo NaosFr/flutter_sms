@@ -74,7 +74,7 @@ class FlutterSmsPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Broadca
       inst.setupCallbackChannels(registrar.messenger())
     }
 
-		const val SENT_SMS_ACTION_NAME = "SMS_SENT_ACTION"
+		// const val REQUEST_CODE_SEND_SMS = "REQUEST_CODE_SEND_SMS"
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
@@ -143,14 +143,14 @@ class FlutterSmsPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Broadca
 
   	this.result = result
     val intentFilter = IntentFilter()
-    intentFilter.addAction(SENT_SMS_ACTION_NAME)
+    intentFilter.addAction(REQUEST_CODE_SEND_SMS)
     activity?.registerReceiver(this, intentFilter)
 
     activity?.startActivityForResult(intent, REQUEST_CODE_SEND_SMS)
   }
 
 	override fun onReceive(context: Context, intent: Intent) {
-    if (intent.action.equals(SENT_SMS_ACTION_NAME)) {
+    if (intent.action.equals(REQUEST_CODE_SEND_SMS)) {
       when (resultCode) {
         Activity.RESULT_OK -> {
           result?.success("sent");
