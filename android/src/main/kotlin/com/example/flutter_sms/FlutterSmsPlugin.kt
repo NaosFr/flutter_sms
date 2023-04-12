@@ -1,8 +1,5 @@
 package com.example.flutter_sms
 
-import android.content.BroadcastReceiver
-import android.content.IntentFilter
-import android.content.Context
 import android.annotation.TargetApi
 import android.app.Activity
 import android.app.PendingIntent
@@ -24,7 +21,7 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
 
-class FlutterSmsPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, BroadcastReceiver() {
+class FlutterSmsPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var mChannel: MethodChannel
   private var activity: Activity? = null
   private val REQUEST_CODE_SEND_SMS = 205
@@ -55,6 +52,15 @@ class FlutterSmsPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Broadca
     teardown()
   }
 
+	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent): Boolean { 
+    if (requestCode == REQUEST_CODE_SEND_SMS && this.result != null) { 
+      this.result!.success("sent") 
+      this.result = null 
+      return true 
+    }
+    return false 
+  } 
+
   private fun setupCallbackChannels(messenger: BinaryMessenger) {
     mChannel = MethodChannel(messenger, "flutter_sms")
     mChannel.setMethodCallHandler(this)
@@ -73,8 +79,6 @@ class FlutterSmsPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Broadca
       inst.activity = registrar.activity()
       inst.setupCallbackChannels(registrar.messenger())
     }
-
-		// const val REQUEST_CODE_SEND_SMS = "REQUEST_CODE_SEND_SMS"
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
@@ -140,47 +144,7 @@ class FlutterSmsPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Broadca
     intent.data = Uri.parse("smsto:$phones")
     intent.putExtra("sms_body", message)
     intent.putExtra(Intent.EXTRA_TEXT, message)
-
-  	this.result = result
-    val intentFilter = IntentFilter()
-    intentFilter.addAction(REQUEST_CODE_SEND_SMS)
-    activity?.registerReceiver(this, intentFilter)
-
+		this.result = result
     activity?.startActivityForResult(intent, REQUEST_CODE_SEND_SMS)
-  }
-
-	override fun onReceive(context: Context, intent: Intent) {
-    if (intent.action.equals(REQUEST_CODE_SEND_SMS)) {
-      when (resultCode) {
-        Activity.RESULT_OK -> {
-          result?.success("sent");
-        }
-
-        111 -> {
-          result?.error("111", "RESULT_ERROR_NO_CREDIT", "RESULT_ERROR_NO_CREDIT")
-        }
-
-        SmsManager.RESULT_ERROR_NO_SERVICE -> {
-          result?.error("${SmsManager.RESULT_ERROR_NO_SERVICE}", "RESULT_ERROR_NO_SERVICE", "No service for sending SMS")
-        }
-
-        SmsManager.RESULT_ERROR_NULL_PDU -> {
-          result?.error("${SmsManager.RESULT_ERROR_NULL_PDU}", "RESULT_ERROR_NULL_PDU", "Null PDU")
-
-        }
-
-        SmsManager.RESULT_ERROR_RADIO_OFF -> {
-          result?.error("${SmsManager.RESULT_ERROR_RADIO_OFF}", "RESULT_ERROR_RADIO_OFF", "May airplane mode is turned off")
-        }
-
-        else -> {
-          result?.error("${SmsManager.RESULT_ERROR_GENERIC_FAILURE}", "RESULT_ERROR_GENERIC_FAILURE", "RESULT_ERROR_GENERIC_FAILURE")
-        }
-      }
-    }
-
-    activity?.unregisterReceiver(
-      this
-    )
   }
 }
